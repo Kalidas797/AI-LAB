@@ -1,0 +1,211 @@
+<Katbin/>
+Register
+Log in
+VACCUM CLEANER WORLD
+
+def vacuum_world():
+    goal_state={'A':'0','B':'0'}
+    cost=0
+    location=input("Enter Location of Vacuum (A or B): ").upper()
+    status=input(f"Enter status of {location} (0=Clean, 1=Dirty): ")
+    other_location='B' if location=='A' else 'A'
+    other_status=input(f"Enter status of {other_location} (0=Clean, 1=Dirty): ")
+    print("Initial Location Condition:",goal_state)
+    print(f"Vacuum is placed in Location {location}")
+    def clean(loc,loc_status):
+        nonlocal cost
+        if loc_status=='1':
+            print(f"Location {loc} is Dirty.")
+            goal_state[loc]='0'
+            cost+=1
+            print(f"COST for CLEANING {loc}: {cost}")
+            print(f"Location {loc} has been Cleaned.")
+        else:
+            print(f"Location {loc} is already clean.")
+    clean(location,status)
+    if other_status=='1':
+        print(f"Moving {'RIGHT' if other_location=='B' else 'LEFT'} to Location {other_location}")
+        cost+=1
+        print(f"COST for moving: {cost}")
+        clean(other_location,other_status)
+    else:
+        print("No action",cost)
+        print(f"Location {other_location} is already clean.")
+    print("\nGOAL STATE:",goal_state)
+    print("Performance Measurement:",cost)
+vacuum_world()
+
+N QUEENS PROBLEM
+
+print("Enter the number of queens")
+N=int(input())
+board=[[0]*N for _ in range(N)]
+def attack(i,j):
+    for k in range(0,N):
+        if board[i][k]==1 or board[k][j]==1:
+            return True
+    for k in range(0,N):A
+        for l in range(0,N):
+            if (k+l==i+j) or (k-l==i-j):
+                if board[k][l]==1:
+                    return True
+    return False
+def N_queens(n):
+    if n==0:
+        return True
+    for i in range(0,N):
+        for j in range(0,N):
+            if (not attack(i,j)) and (board[i][j]!=1):
+                board[i][j]=1
+                if N_queens(n-1)==True:
+                    return True
+                board[i][j]=0
+    return False
+N_queens(N)
+for i in board:
+    print(i)
+
+Breadth First Search
+
+from collections import deque
+def bfs(graph,start,goal):
+    q,visited,pred=deque([start]),{start},{start:None}
+    while q:
+        node=q.popleft()
+        if node==goal:break
+        for nb in graph[node]:
+            if nb not in visited:
+                visited.add(nb);pred[nb]=node;q.append(nb)
+    if goal not in pred:return "No path exists"
+    path=[]
+    while goal:
+        path.append(goal)
+        goal=pred[goal]
+    return path[::-1]
+graph={'A':['B','C'],'B':['D','E'],'C':['F'],'D':[],'E':['G'],'F':[],'G':[]}
+print("Path from start to goal:",bfs(graph,'A','F'))
+
+
+DEPTH FIRST SEARCH
+
+def dfs(graph,start,goal):
+    stack,visited,parent=[start],set([start]),{start:None}
+    while stack:
+        node=stack.pop()
+        if node==goal:
+            path=[]
+            while node:
+                path.append(node)
+                node=parent[node]
+            return path[::-1]
+        for child in graph.get(node,[]):
+            if child not in visited:
+                visited.add(child)
+                stack.append(child)
+                parent[child]=node
+    return "No path"
+graph={'A':['B','C'],'B':['D','E'],'C':['F'],'D':[],'E':['G'],'F':[],'G':[]}
+print("Path from start to goal:",dfs(graph,'A','F'))
+
+
+BEST FIRST SEARCH
+
+import heapq
+class Node:
+    def __init__(self, name, heuristic):
+        self.name, self.heuristic, self.neighbors, self.g_cost, self.parent = name, heuristic, {}, float('inf'), None
+    def add(self, neighbor, cost):
+        self.neighbors[neighbor] = cost
+    def __lt__(self, other):
+        return self.g_cost + self.heuristic < other.g_cost + other.heuristic
+def a_star(start, goal):
+    open_list = [start]
+    start.g_cost = 0
+    while open_list:
+        current = heapq.heappop(open_list)
+        print("Expanding node:", current.name)
+        if current == goal:
+            print(f"Goal node {goal.name} found!")
+            return
+        for neighbor, cost in current.neighbors.items():
+            new_cost = current.g_cost + cost
+            if new_cost < neighbor.g_cost:
+                neighbor.g_cost, neighbor.parent = new_cost, current
+                heapq.heappush(open_list, neighbor)
+if __name__=="__main__":
+    A,B,C,D,E=[Node('A',5),Node('B',3),Node('C',1),Node('D',3),Node('E',0)]
+    A.add(B,1);A.add(C,4);B.add(D,2);C.add(E,3);D.add(E,1)
+    a_star(A,E)
+
+A* Search
+
+import heapq
+class Node:
+    def __init__(self, name, h):
+        self.name, self.h, self.neighbors = name, h, {}
+        self.g, self.parent = float('inf'), None
+    def add(self, neighbor, cost):
+        self.neighbors[neighbor] = cost
+    def __lt__(self, other):
+        return self.g + self.h < other.g + other.h
+def a_star(start_node, goal_node):
+    open_list = [start_node]
+    start_node.g = 0
+    while open_list:
+        current_node = heapq.heappop(open_list)
+        print("Expanding node:", current_node.name)
+        if current_node == goal_node:
+            path = []
+            while current_node:
+                path.append(current_node.name)
+                current_node = current_node.parent
+            return "->".join(path[::-1])
+        for neighbor, cost in current_node.neighbors.items():
+            new_g = current_node.g + cost
+            if new_g < neighbor.g:
+                neighbor.g, neighbor.parent = new_g, current_node
+                heapq.heappush(open_list, neighbor)
+a,b,c,d,e=Node('A',5),Node('B',3),Node('C',1),Node('D',2),Node('E',0)
+a.add(b,1);a.add(c,4);b.add(d,2);c.add(e,3);d.add(e,1)
+print("Path found:",a_star(a,e))
+
+MIN MAX Game Playing with Alpha-Beta Pruning
+
+MAX,MIN=1000,-1000
+def minimax(depth,index,isMax,values,alpha,beta):
+    if depth==3:return values[index]
+    if isMax:
+        best=MIN
+        for branch in range(2):
+            best=max(best,minimax(depth+1,index*2+branch,False,values,alpha,beta))
+            alpha=max(alpha,best)
+            if beta<=alpha:
+                print("best value of max player-->",best)
+                break
+        return best
+    else:
+        best=MAX
+        for branch in range(2):
+            best=min(best,minimax(depth+1,index*2+branch,True,values,alpha,beta))
+            beta=min(beta,best)
+            if beta<=alpha:
+                print("best value of min player-->",best)
+                break
+        return best
+values=[3,5,6,9,1,2,0,-1]
+print("The optimal value is:",minimax(0,0,True,values,MIN,MAX))
+
+
+
+
+
+
+
+
+
+
+
+
+
+© 2025 SphericalKat
+Fork me!
